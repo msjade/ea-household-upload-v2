@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EA Household Count Upload</title>
+<style>
+body{font-family:Arial,sans-serif;margin:24px}
+.wrap{max-width:920px}
+.card{border:1px solid #ddd;border-radius:10px;padding:16px;margin-top:16px}
+pre{background:#f6f6f6;padding:12px;overflow:auto}
+small{color:#444}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>EA Household Count Upload</h2>
+  <p><b>CSV template:</b> <code>NAT_EA_SN,HOUSEHOLD_COUNT</code></p>
+  <small>Rules: duplicates in the same file are rejected. Re-uploading the same file is safe. Cross-client conflicts within 60 days are skipped and reported.</small>
+
+  <div class="card">
+    <input type="file" id="file" accept=".csv" />
+    <button id="btn">Upload</button>
+    <button id="tmpl">Show template</button>
+  </div>
+
+  <div class="card">
+    <h3>Result</h3>
+    <pre id="out">Waiting...</pre>
+  </div>
+</div>
+
+<script>
+const out = document.getElementById('out');
+const fileEl = document.getElementById('file');
+
+document.getElementById('tmpl').onclick = async () => {
+  const res = await fetch('/template');
+  const data = await res.json();
+  out.textContent = data.template_csv;
+};
+
+document.getElementById('btn').onclick = async () => {
+  const f = fileEl.files[0];
+  if (!f) { out.textContent = 'Please choose a CSV file.'; return; }
+  const fd = new FormData();
+  fd.append('file', f);
+  out.textContent = 'Uploading...';
+  try {
+    const res = await fetch('/upload/hhcount', { method: 'POST', body: fd });
+    const data = await res.json();
+    out.textContent = JSON.stringify(data, null, 2);
+  } catch (e) {
+    out.textContent = 'Error: ' + e;
+  }
+};
+</script>
+</body>
+</html>

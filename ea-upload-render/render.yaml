@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ea-hhcount-uploader
+    env: docker
+    rootDir: app
+    plan: starter
+    envVars:
+      - key: CONFLICT_WINDOW_DAYS
+        value: "60"
+      - key: TRUST_X_FORWARDED_FOR
+        value: "true"
+      # Set DATABASE_URL in Render dashboard (or connect a Render Postgres and link it).
